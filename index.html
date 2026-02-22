@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>English Vocabulary Drill (35)</title>
+  <title>Vokabel-Training (35)</title>
   <style>
     body { font-family: -apple-system, system-ui, Arial, sans-serif; margin: 16px; }
     h1 { font-size: 20px; margin: 0 0 8px; }
@@ -12,6 +12,7 @@
     .bank b { display:block; margin-bottom:6px; }
     .card { margin-top: 14px; padding: 14px; border: 1px solid #eee; border-radius: 12px; }
     .q { font-size: 18px; line-height: 1.3; min-height: 60px; }
+    .subq { margin-top: 6px; color:#666; font-size: 13px; }
     input { font-size: 17px; padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px; }
     button { font-size: 16px; padding: 10px 12px; margin-top: 10px; }
     .row { display:flex; gap:10px; flex-wrap:wrap; }
@@ -24,40 +25,37 @@
     .toprow { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom: 8px; }
     .mini { font-size: 13px; color:#666; }
     .warn { background:#fff7e6; border:1px solid #ffe0a3; padding:10px; border-radius:10px; color:#5b3b00; margin-top:10px;}
-    noscript { display:block; margin-top:10px; padding:10px; border:1px solid #f0c; border-radius:10px; }
+    details { margin-top:10px; }
+    details summary { cursor: pointer; user-select:none; }
+    .hintbox { margin-top:8px; padding:10px; border:1px dashed #ccc; border-radius:10px; background:#fcfcfc; color:#333; }
+    noscript { display:block; margin-top:10px; padding:10px; border:1px solid #d00; border-radius:10px; color:#700; }
   </style>
 </head>
 
 <body>
-  <h1>English Vocabulary Drill (35)</h1>
+  <h1>Vokabel-Training (35)</h1>
   <p>
-    <b>Anleitung:</b> Eine Frage nach der anderen. Bei Fehlern (oder wenn die Lösung angezeigt wird)
-    kommt die Aufgabe <b>erst nach mindestens 5 weiteren Fragen</b> wieder – bis sie richtig gelöst ist.
-    Groß-/Kleinschreibung ist egal (z.B. <i>Pollution</i> = <i>pollution</i>).
+    <b>Anleitung:</b> Du siehst nur deutsche Hinweise. Tippe die englische Lösung (in der passenden Form).
+    Bei falscher Antwort oder wenn du die Lösung anzeigen lässt, kommt die Aufgabe <b>erst nach mindestens 5 weiteren Fragen</b> wieder – bis sie richtig gelöst ist.
   </p>
 
-  <div class="bank">
-    <b>Word bank (Grundformen wie im Buch)</b>
-    far; silver; arm; to try on; to grab; wrist; to take off; to be careful; to drop; to roll off; It's gone;
-    to be lucky; mud; muddy; wet; pollution; dead; human; body; yuk; to go back to; (the) most; broken;
-    not any more; to hold; piece; to notice; to scream; to pull; suddenly; rock; safely; onto; idiot; difference
-  </div>
+  <div class="bank" id="bank"></div>
 
-  <noscript class="warn">
-    JavaScript ist deaktiviert. Bitte diese Datei in Safari öffnen (nicht im iOS-Vorschau/QuickLook),
-    sonst funktionieren die Fragen nicht.
+  <noscript>
+    JavaScript ist deaktiviert. Bitte diese Seite in einem Browser öffnen, der JavaScript erlaubt.
   </noscript>
 
   <div class="card">
     <div class="toprow">
-      <div class="mini" id="progress">Progress: 0/35</div>
-      <div class="mini" id="qnum"></div>
+      <div class="mini" id="progress">Richtig: 0/35</div>
       <div class="mini" id="reviewinfo"></div>
+      <div class="mini" id="qnum"></div>
     </div>
 
     <div class="q" id="question">Lade Frage…</div>
+    <div class="subq" id="subq"></div>
 
-    <input id="answer" placeholder="Antwort hier eingeben" autocomplete="off" />
+    <input id="answer" placeholder="Englische Antwort hier eingeben" autocomplete="off" />
 
     <div class="row">
       <button id="btnCheck" type="button">✅ Prüfen</button>
@@ -65,14 +63,19 @@
     </div>
 
     <div class="row">
-      <button id="btnNext" type="button">➡️ Nächste Frage</button>
+      <button id="btnNext" type="button" disabled>➡️ Nächste Frage</button>
       <button id="btnSkip" type="button">⏭️ Überspringen</button>
     </div>
 
     <div id="feedback" style="margin-top:10px;"></div>
 
+    <details id="hintDetails">
+      <summary>💡 Hint (EN) anzeigen</summary>
+      <div class="hintbox" id="hintBox"></div>
+    </details>
+
     <div class="row">
-      <button id="btnStatus" type="button">📊 STATUS</button>
+      <button id="btnStatus" type="button">📊 Status</button>
       <button id="btnRestart" type="button">🔄 Neustart</button>
     </div>
 
@@ -82,46 +85,48 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ===== Fragen + Lösungen =====
   const ITEMS = [
-    {id:1,  base:"far",            q:"Is Big Ben ______ from the River Thames?",                           a:"far"},
-    {id:2,  base:"silver",         q:"I don't like gold jewellery. I always wear ______.",                 a:"silver"},
-    {id:3,  base:"arm",            q:"What's that on your ______?",                                         a:"arm"},
-    {id:4,  base:"to try on",      q:"That's a nice T-shirt. You should ______, it's your colour.",        a:"try it on"},
-    {id:5,  base:"to grab",        q:"He ______ her arm to look at her tattoo.",                            a:"grabbed"},
-    {id:6,  base:"wrist",          q:"You wear bracelets on your ______.",                                  a:"wrist"},
-    {id:7,  base:"to take off",    q:"______ your shoes before you jump on the bed!",                       a:"take off"},
-    {id:8,  base:"to be careful",  q:"______ with my camera, Lily.",                                        a:"be careful"},
-    {id:9,  base:"to drop",        q:"Karam ______ Ty's bracelet.",                                         a:"dropped"},
-    {id:10, base:"to roll off",    q:"The bracelet ______ the bridge.",                                     a:"rolled off"},
-    {id:11, base:"It's gone",      q:"Oh no, where's my phone? ______!",                                    a:"it's gone"},
-    {id:12, base:"to be lucky",    q:"I was ______ that somebody found it and gave it back to me.",         a:"lucky"},
-    {id:13, base:"mud",            q:"The girl's trousers were dirty because she played in the ______.",    a:"mud"},
-    {id:14, base:"muddy",          q:"The footpath next to the lake is ______.",                             a:"muddy"},
-    {id:15, base:"wet",            q:"After a few steps in the mud my shoes were ______ and dirty.",         a:"wet"},
-    {id:16, base:"pollution",      q:"______ made the river dirty.",                                         a:"pollution"},
-    {id:17, base:"dead",           q:"Our cat often brings home ______ mice.",                                a:"dead"},
-    {id:18, base:"human",          q:"There are lots of signs of ______ life in the mud along the Thames.",  a:"human"},
-    {id:19, base:"body",           q:"My ______ hurts everywhere.",                                           a:"body"},
-    {id:20, base:"yuk",            q:"______, what's wrong with this cake?",                                  a:"yuk"},
-    {id:21, base:"to go back to",  q:"The history of London ______ Roman times.",                             a:"goes back to"},
-    {id:22, base:"(the) most",     q:"______ of my friends go to my school.",                                 a:"most"},
-    {id:23, base:"broken",         q:"Don't sit on that chair - it's ______!",                                a:"broken"},
-    {id:24, base:"not any more",   q:"My big sister doesn't go to school ______.",                            a:"any more"},
-    {id:25, base:"to hold",        q:"Could you ______ the door open for me, please?",                        a:"hold"},
-    {id:26, base:"piece",          q:"Would you like a ______ of cake?",                                       a:"piece"},
-    {id:27, base:"to notice",      q:"Did you ______ anything strange in the castle?",                        a:"notice"},
-    {id:28, base:"to scream",      q:"Ruby ______ because she found something awful.",                        a:"screamed"},
-    {id:29, base:"to pull",        q:"If you want to open the door, just ______!",                            a:"pull"},
-    {id:30, base:"suddenly",       q:"I was so scared when the door ______ opened.",                          a:"suddenly"},
-    {id:31, base:"rock",           q:"There are big ______ in the river.",                                     a:"rocks"},
-    {id:32, base:"safely",         q:"They got back ______.",                                                  a:"safely"},
-    {id:33, base:"onto",           q:"They got back ______ land.",                                             a:"onto"},
-    {id:34, base:"idiot",          q:"Don't be such an ______.",                                               a:"idiot"},
-    {id:35, base:"difference",     q:"There are often big ______ between twins.",                             a:"differences"}
+    {id:1,  de:"weit",                          deNote:"weit",                    a:"far",         hintEN:"Is Big Ben ______ from the River Thames?"},
+    {id:2,  de:"Silber",                        deNote:"Silber",                  a:"silver",      hintEN:"I don't like gold jewellery. I always wear ______."},
+    {id:3,  de:"Arm",                           deNote:"Arm",                     a:"arm",         hintEN:"What's that on your ______?"},
+    {id:4,  de:"anprobieren",                   deNote:"anprobieren",             a:"try it on",   hintEN:"That's a nice T-shirt. You should ______, it's your colour."},
+    {id:5,  de:"greifen; ergreifen; schnappen", deNote:"Vergangenheit im Satz",   a:"grabbed",     hintEN:"He ______ her arm to look at her tattoo."},
+    {id:6,  de:"Handgelenk",                    deNote:"Handgelenk",              a:"wrist",       hintEN:"You wear bracelets on your ______."},
+    {id:7,  de:"abnehmen; herunternehmen; ausziehen",
+                                               deNote:"Befehl im Satz",          a:"take off",     hintEN:"______ your shoes before you jump on the bed!"},
+    {id:8,  de:"vorsichtig sein; aufpassen",    deNote:"Befehl im Satz",          a:"be careful",   hintEN:"______ with my camera, Lily."},
+    {id:9,  de:"fallen (lassen)",               deNote:"Vergangenheit im Satz",   a:"dropped",      hintEN:"Karam ______ Ty's bracelet."},
+    {id:10, de:"wegrollen; herunterrollen",     deNote:"Vergangenheit im Satz",   a:"rolled off",   hintEN:"The bracelet ______ the bridge."},
+    {id:11, de:"Es ist weg.",                   deNote:"Es ist weg.",             a:"it's gone",    hintEN:"Oh no, where's my phone? ______!"},
+    {id:12, de:"Glück haben",                   deNote:"Glück haben",             a:"lucky",        hintEN:"I was ______ that somebody found it and gave it back to me."},
+
+    {id:13, de:"Schlamm",                       deNote:"Schlamm",                 a:"mud",          hintEN:"The girl's trousers were dirty because she played in the ______."},
+    {id:14, de:"schlammig",                     deNote:"schlammig",               a:"muddy",        hintEN:"The footpath next to the lake is ______."},
+    {id:15, de:"nass",                          deNote:"nass",                    a:"wet",          hintEN:"After a few steps in the mud my shoes were ______ and dirty."},
+    {id:16, de:"Verschmutzung",                 deNote:"Verschmutzung",           a:"pollution",    hintEN:"______ made the river dirty."},
+    {id:17, de:"tot",                           deNote:"tot",                     a:"dead",         hintEN:"Our cat often brings home ______ mice."},
+    {id:18, de:"menschlich; Menschen-",         deNote:"menschlich",              a:"human",        hintEN:"There are lots of signs of ______ life in the mud along the Thames."},
+    {id:19, de:"Körper",                        deNote:"Körper",                  a:"body",         hintEN:"My ______ hurts everywhere."},
+    {id:20, de:"igitt",                         deNote:"igitt",                   a:"yuk",          hintEN:"______, what's wrong with this cake?"},
+    {id:21, de:"zurückgehen auf",               deNote:"im Satz: Präsens",        a:"goes back to", hintEN:"The history of London ______ Roman times."},
+    {id:22, de:"der/die/das meiste; die meisten",
+                                               deNote:"im Satz",                 a:"most",         hintEN:"______ of my friends go to my school."},
+    {id:23, de:"kaputt; gebrochen",             deNote:"kaputt",                  a:"broken",       hintEN:"Don't sit on that chair - it's ______!"},
+    {id:24, de:"nicht mehr",                    deNote:"nicht mehr",              a:"any more",     hintEN:"My big sister doesn't go to school ______."},
+    {id:25, de:"halten; festhalten",            deNote:"Befehl im Satz",          a:"hold",         hintEN:"Could you ______ the door open for me, please?"},
+    {id:26, de:"Stück",                         deNote:"Stück",                   a:"piece",        hintEN:"Would you like a ______ of cake?"},
+    {id:27, de:"bemerken; wahrnehmen",          deNote:"bemerken",                a:"notice",       hintEN:"Did you ______ anything strange in the castle?"},
+    {id:28, de:"schreien; kreischen",           deNote:"Vergangenheit im Satz",   a:"screamed",     hintEN:"Ruby ______ because she found something awful."},
+    {id:29, de:"ziehen",                        deNote:"Befehl im Satz",          a:"pull",         hintEN:"If you want to open the door, just ______!"},
+    {id:30, de:"plötzlich; auf einmal",         deNote:"plötzlich",               a:"suddenly",     hintEN:"I was so scared when the door ______ opened."},
+    {id:31, de:"Fels; Stein",                   deNote:"Plural im Satz",          a:"rocks",        hintEN:"There are big ______ in the river."},
+
+    {id:32, de:"sicher",                        deNote:"sicher",                  a:"safely",       hintEN:"They got back ______."},
+    {id:33, de:"auf; auf … hinauf",             deNote:"auf …",                   a:"onto",         hintEN:"They got back ______ land."},
+    {id:34, de:"Idiot/-in",                     deNote:"Idiot/-in",               a:"idiot",        hintEN:"Don't be such an ______."},
+    {id:35, de:"Unterschied",                   deNote:"Plural im Satz",          a:"differences",  hintEN:"There are often big ______ between twins."}
   ];
 
-  // ===== Нормализация (регистр не важен) =====
   const norm = (s) => (s||"")
     .toString()
     .trim()
@@ -129,30 +134,19 @@ document.addEventListener("DOMContentLoaded", () => {
     .replace(/[’]/g,"'")
     .replace(/\s+/g," ");
 
-  const getItem = (id) => ITEMS.find(x => x.id === id);
+  const bankEl = document.getElementById("bank");
+  bankEl.innerHTML = `<b>Wortschatz (Deutsch – wie im Buch)</b> ${ITEMS.map(x => x.de).join("; ")}`;
 
-  // ===== Состояние =====
-  // status: 0 NOT USED, 1 USED, 2 NEEDS REVIEW
-  const state = {
-    statusById: Object.fromEntries(ITEMS.map(it => [it.id, 0])),
-    mainQueue: ITEMS.map(it => it.id),      // основная очередь
-    reviewQueue: [],                        // задачи на повтор (пока не решатся)
-    reviewDueAt: {},                        // id -> step, когда можно снова спрашивать
-    step: 0,                                // сколько вопросов уже было показано
-    currentId: null,
-    currentResult: "unanswered",            // unanswered | correct | wrong | shown
-    finished: false
-  };
-
-  // ===== UI =====
   const qEl = document.getElementById("question");
+  const subqEl = document.getElementById("subq");
   const aEl = document.getElementById("answer");
   const fEl = document.getElementById("feedback");
   const sEl = document.getElementById("status");
-
   const pEl = document.getElementById("progress");
-  const qnumEl = document.getElementById("qnum");
-  const rinfoEl = document.getElementById("reviewinfo");
+  const rEl = document.getElementById("reviewinfo");
+  const qnEl = document.getElementById("qnum");
+  const hintDetails = document.getElementById("hintDetails");
+  const hintBox = document.getElementById("hintBox");
 
   const btnCheck = document.getElementById("btnCheck");
   const btnShow  = document.getElementById("btnShow");
@@ -161,37 +155,43 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnStatus= document.getElementById("btnStatus");
   const btnRestart=document.getElementById("btnRestart");
 
+  const getItem = (id) => ITEMS.find(x => x.id === id);
+
+  const state = {
+    statusById: Object.fromEntries(ITEMS.map(it => [it.id, 0])),
+    mainQueue: ITEMS.map(it => it.id),
+    reviewQueue: [],
+    reviewDueAt: {},
+    step: 0,
+    currentId: null,
+    currentMode: "unanswered",
+    finished: false
+  };
+
   function updateHeader(){
-    const used = Object.values(state.statusById).filter(x=>x===1).length;
-    pEl.textContent = `Progress: ${used}/${ITEMS.length}`;
-    const need = Object.values(state.statusById).filter(x=>x===2).length;
-    rinfoEl.textContent = need ? `Needs review: ${need}` : "";
-    qnumEl.textContent = state.currentId ? `Aufgabe ID: ${state.currentId}` : "";
+    const richtig = Object.values(state.statusById).filter(x=>x===1).length;
+    const falsch = Object.values(state.statusById).filter(x=>x===2).length;
+    pEl.textContent = `Richtig: ${richtig}/${ITEMS.length}`;
+    rEl.textContent = falsch ? `Falsch offen: ${falsch}` : "";
+    qnEl.textContent = state.currentId ? `Frage Nr.: ${state.step}` : "";
   }
 
   function enqueueReview(id){
-    // повтор не раньше чем через 5 вопросов
     const due = state.step + 5;
     state.reviewDueAt[id] = Math.max(state.reviewDueAt[id] || 0, due);
     if(!state.reviewQueue.includes(id)) state.reviewQueue.push(id);
-    state.statusById[id] = 2; // NEEDS REVIEW
+    state.statusById[id] = 2;
   }
 
   function pickNextId(){
-    // 1) сначала — review, если due наступил
     const dueReview = state.reviewQueue.find(id => (state.reviewDueAt[id] ?? 0) <= state.step);
-    if(dueReview !== undefined){
-      // не удаляем навсегда — удалим только когда решено правильно
-      return dueReview;
-    }
+    if(dueReview !== undefined) return dueReview;
 
-    // 2) потом — mainQueue
     while(state.mainQueue.length){
       const id = state.mainQueue.shift();
       if(state.statusById[id] !== 1) return id;
     }
 
-    // 3) если main закончилась, но review ещё не due — берём самый ранний по due
     if(state.reviewQueue.length){
       let best = state.reviewQueue[0];
       let bestDue = state.reviewDueAt[best] ?? Infinity;
@@ -201,99 +201,98 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return best;
     }
-
     return null;
+  }
+
+  function removeFromReviewIfSolved(id){
+    state.reviewQueue = state.reviewQueue.filter(x => x !== id);
+    delete state.reviewDueAt[id];
   }
 
   function renderQuestion(){
     const next = pickNextId();
     if(next === null){
       state.finished = true;
-      qEl.innerHTML = `Fertig! <span class="pill ok">Alle richtig</span>`;
-      fEl.innerHTML = `<span class="ok">Super! Alles abgeschlossen.</span>`;
+      qEl.innerHTML = `Fertig! <span class="pill ok">Alles richtig</span>`;
+      subqEl.textContent = "";
+      fEl.innerHTML = `<span class="ok">Super! Alle Aufgaben sind erledigt.</span>`;
       aEl.value = "";
       aEl.disabled = true;
       btnCheck.disabled = true;
       btnShow.disabled = true;
       btnNext.disabled = true;
       btnSkip.disabled = true;
+      hintDetails.open = false;
+      hintBox.textContent = "";
       updateHeader();
       return;
     }
 
     state.currentId = next;
     state.step += 1;
-    state.currentResult = "unanswered";
+    state.currentMode = "unanswered";
 
     const it = getItem(next);
-    qEl.textContent = it.q;
+
+    qEl.textContent = `Übersetze ins Englische: ${it.de}`;
+    subqEl.textContent = it.deNote ? `Hinweis (DE): ${it.deNote}` : "";
+
+    hintDetails.open = false;
+    hintBox.textContent = it.hintEN || "";
 
     aEl.value = "";
     aEl.disabled = false;
 
     btnCheck.disabled = false;
     btnShow.disabled = false;
-    btnNext.disabled = true;      // Next доступна только после проверки/пропуска/показа
     btnSkip.disabled = false;
+    btnNext.disabled = true;
 
-    fEl.innerHTML = `<span class="muted">Frage ${state.step}. Tippe deine Antwort und drücke „Prüfen“.</span>`;
+    fEl.innerHTML = `<span class="muted">Gib die englische Lösung ein und drücke „Prüfen“.</span>`;
+    sEl.textContent = "";
     updateHeader();
     aEl.focus();
   }
 
-  function removeFromReviewIfSolved(id){
-    // если решено правильно — убрать из review очереди
-    state.reviewQueue = state.reviewQueue.filter(x => x !== id);
-    delete state.reviewDueAt[id];
-  }
-
-  // ===== Actions =====
   btnCheck.addEventListener("click", () => {
     if(state.finished || !state.currentId) return;
-    const it = getItem(state.currentId);
-
-    // если уже показали ответ — проверку не даём
-    if(state.currentResult === "shown"){
-      fEl.innerHTML = `<span class="bad">Du hast die Lösung anzeigen lassen. Bitte „Nächste Frage“ drücken.</span>`;
+    if(state.currentMode === "shown"){
+      fEl.innerHTML = `<span class="bad">Die Lösung wurde angezeigt. Bitte „Nächste Frage“ drücken.</span>`;
       return;
     }
-
+    const it = getItem(state.currentId);
     const user = norm(aEl.value);
     const correct = norm(it.a);
 
     if(user === correct){
-      state.currentResult = "correct";
-      state.statusById[it.id] = 1; // USED
+      state.statusById[it.id] = 1;
       removeFromReviewIfSolved(it.id);
       fEl.innerHTML = `<span class="ok">Richtig!</span>`;
     } else {
-      state.currentResult = "wrong";
       enqueueReview(it.id);
       fEl.innerHTML = `<span class="bad">Falsch.</span> <span class="pill">Wiederholung nach ≥ 5 Fragen</span>`;
     }
 
-    // после проверки — только вручную Next
+    state.currentMode = "checked";
     btnNext.disabled = false;
+    updateHeader();
   });
 
   btnShow.addEventListener("click", () => {
     if(state.finished || !state.currentId) return;
     const it = getItem(state.currentId);
 
-    state.currentResult = "shown";
     enqueueReview(it.id);
+    state.currentMode = "shown";
 
-    // показать ответ
     fEl.innerHTML =
-      `<div class="warn"><b>Lösung:</b> <span class="ok">${it.a}</span><br>` +
-      `<span class="muted">Eingabe ist jetzt gesperrt, damit man es nicht sofort als „richtig“ abschickt.</span></div>`;
+      `<div class="warn"><b>Richtige Antwort (EN):</b> <span class="ok">${it.a}</span><br>` +
+      `<span class="muted">Eingabe ist gesperrt. Bitte „Nächste Frage“.</span></div>`;
 
-    // блокируем ввод и проверку
     aEl.disabled = true;
     btnCheck.disabled = true;
-
-    // Next разрешаем
     btnNext.disabled = false;
+    updateHeader();
   });
 
   btnSkip.addEventListener("click", () => {
@@ -301,30 +300,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const it = getItem(state.currentId);
 
     enqueueReview(it.id);
-    state.currentResult = "wrong";
-
+    state.currentMode = "checked";
     fEl.innerHTML = `<span class="bad">Übersprungen.</span> <span class="pill">Wiederholung nach ≥ 5 Fragen</span>`;
     btnNext.disabled = false;
+    updateHeader();
   });
 
   btnNext.addEventListener("click", () => {
     if(state.finished) return;
-
-    // Если это был review-вопрос и он не решён правильно, он остаётся в reviewQueue автоматически.
-    // Важно: чтобы он не повторился раньше чем через 5 — due уже выставлен.
     renderQuestion();
   });
 
   btnStatus.addEventListener("click", () => {
-    const used = Object.values(state.statusById).filter(x=>x===1).length;
+    const richtig = Object.values(state.statusById).filter(x=>x===1).length;
     const rows = ITEMS.map(it => {
       const st = state.statusById[it.id];
-      const label = st===1 ? "USED" : (st===2 ? "NEEDS REVIEW" : "NOT USED");
-      return `${it.base.padEnd(14)} | ${label}`;
+      const label = st===1 ? "richtig" : (st===2 ? "falsch" : "offen");
+      return `${it.de.padEnd(28)} | ${label}`;
     }).join("\n");
 
-    sEl.textContent =
-      `STATUS\n------\nUsed: ${used}/${ITEMS.length}\n\n` + rows;
+    sEl.textContent = `STATUS\n------\nRichtig: ${richtig}/${ITEMS.length}\n\n` + rows;
   });
 
   btnRestart.addEventListener("click", () => {
@@ -334,25 +329,23 @@ document.addEventListener("DOMContentLoaded", () => {
     state.reviewDueAt = {};
     state.step = 0;
     state.currentId = null;
-    state.currentResult = "unanswered";
+    state.currentMode = "unanswered";
     state.finished = false;
 
-    sEl.textContent = "";
+    btnNext.disabled = true;
     aEl.disabled = false;
     btnCheck.disabled = false;
     btnShow.disabled = false;
-    btnNext.disabled = true;
     btnSkip.disabled = false;
 
+    sEl.textContent = "";
     renderQuestion();
   });
 
-  // Enter = Prüfen (если не показали ответ)
   aEl.addEventListener("keydown", (e) => {
     if(e.key === "Enter") btnCheck.click();
   });
 
-  // старт
   renderQuestion();
 });
 </script>
