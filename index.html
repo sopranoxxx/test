@@ -183,6 +183,16 @@ document.addEventListener("DOMContentLoaded", () => {
     delete state.reviewDueAt[id];
   }
 
+  function renderStatus(){
+    const richtig=Object.values(state.statusById).filter(x=>x===1).length;
+    const rows=ITEMS.map(it=>{
+      const st=state.statusById[it.id];
+      const label=st===1?"richtig":(st===2?"falsch":"offen");
+      return `${it.de.padEnd(28)} | ${label}`;
+    }).join("\n");
+    sEl.textContent=`STATUS\n------\nRichtig: ${richtig}/${ITEMS.length}\n\n`+rows;
+  }
+
   function renderQuestion(){
     const next=pickNextId();
     if(next===null){
@@ -226,6 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     btnNext.disabled=false;
     updateHeader();
+    renderStatus();
   });
 
   btnShow.addEventListener("click",()=>{
@@ -234,6 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fEl.innerHTML=`<div class="warn"><b>Richtige Antwort:</b> ${it.a}</div>`;
     btnNext.disabled=false;
     updateHeader();
+    renderStatus();
   });
 
   btnSkip.addEventListener("click",()=>{
@@ -242,19 +254,12 @@ document.addEventListener("DOMContentLoaded", () => {
     fEl.innerHTML=`<span class="bad">Übersprungen.</span>`;
     btnNext.disabled=false;
     updateHeader();
+    renderStatus();
   });
 
   btnNext.addEventListener("click",renderQuestion);
 
-  btnStatus.addEventListener("click",()=>{
-    const richtig=Object.values(state.statusById).filter(x=>x===1).length;
-    const rows=ITEMS.map(it=>{
-      const st=state.statusById[it.id];
-      const label=st===1?"richtig":(st===2?"falsch":"offen");
-      return `${it.de.padEnd(28)} | ${label}`;
-    }).join("\n");
-    sEl.textContent=`STATUS\n------\nRichtig: ${richtig}/${ITEMS.length}\n\n`+rows;
-  });
+  btnStatus.addEventListener("click",renderStatus);
 
   btnRestart.addEventListener("click",()=>{
     state.statusById=Object.fromEntries(ITEMS.map(it=>[it.id,0]));
@@ -266,9 +271,11 @@ document.addEventListener("DOMContentLoaded", () => {
     state.finished=false;
     aEl.disabled=false;
     renderQuestion();
+    renderStatus();
   });
 
   renderQuestion();
+  renderStatus();
 });
 </script>
 
