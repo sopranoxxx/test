@@ -141,7 +141,8 @@ document.addEventListener("DOMContentLoaded", () => {
     reviewDueAt:{},
     step:0,
     currentId:null,
-    finished:false
+    finished:false,
+    statusVisible:false
   };
 
   function updateHeader(){
@@ -191,6 +192,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return `${it.de.padEnd(28)} | ${label}`;
     }).join("\n");
     sEl.textContent=`STATUS\n------\nRichtig: ${richtig}/${ITEMS.length}\n\n`+rows;
+  }
+
+  function setStatusVisibility(visible){
+    state.statusVisible=visible;
+    sEl.style.display=visible?"block":"none";
   }
 
   function renderQuestion(){
@@ -259,7 +265,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btnNext.addEventListener("click",renderQuestion);
 
-  btnStatus.addEventListener("click",renderStatus);
+  btnStatus.addEventListener("click",()=>{
+    const nextVisible=!state.statusVisible;
+    setStatusVisibility(nextVisible);
+    if(nextVisible)renderStatus();
+  });
 
   btnRestart.addEventListener("click",()=>{
     state.statusById=Object.fromEntries(ITEMS.map(it=>[it.id,0]));
@@ -274,6 +284,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderStatus();
   });
 
+  setStatusVisibility(false);
   renderQuestion();
   renderStatus();
 });
